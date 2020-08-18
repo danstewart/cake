@@ -1,0 +1,8 @@
+api/node_modules/
+api/yarn-error.log
+api/.env
+
+frontend/node_modules/
+frontend/.cache/
+frontend/dist/
+frontend/yarn-error.log

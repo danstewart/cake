@@ -1,0 +1,8 @@
+.flex-row {
+	display: flex;
+	flex-wrap: wrap;
+}
+
+.flex-row>* {
+	margin: 15px;
+}
