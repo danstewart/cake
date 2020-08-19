@@ -1,17 +1,16 @@
 import * as React from 'react';
 
 interface Props {
-	header: string;
-	content: string;
-	footer: any;
 	visible: boolean;
-	close: Function;
+	header: string;
+	renderContent(): JSX.Element;
+	renderFooter(): JSX.Element;
+	close(e: React.MouseEvent): void;
 }
 
 class Modal extends React.Component<Props> {
 	render() {
 		const classes = this.props.visible ? 'modal is-active' : 'modal';
-		console.log(classes);
 
 		return (
 			<div className={classes}>
@@ -21,8 +20,8 @@ class Modal extends React.Component<Props> {
 						<button className="delete" aria-label="close" onClick={this.props.close}></button>
 					</div>
 
-					<div className="modal-card-body">{this.props.content}</div>
-					<footer className="modal-card-foot">{this.props.footer}</footer>
+					<div className="modal-card-body">{this.props.renderContent()}</div>
+					<footer className="modal-card-foot">{this.props.renderFooter()}</footer>
 				</div>
 			</div>
 		);

@@ -9,22 +9,38 @@ interface Props {
 	yumFactor: number;
 }
 
+interface ModalState {
+	visible: boolean;
+	header: string;
+	renderContent(): JSX.Element;
+	renderFooter(): JSX.Element;
+	close(): void;
+}
+
+interface State {
+	modal: ModalState;
+}
+
 class Cake extends React.Component<Props> {
-	state = {
+	state: State = {
 		modal: {
 			visible: false,
 			header: '',
-			content: '',
-			footer: '',
-			close: () => {},
+			renderContent: () => <div />,
+			renderFooter: () => <div />,
+			close: () => this.updateModal({ visible: false }),
 		},
 	};
 
 	constructor(props: Props) {
 		super(props);
-		this.view = this.view.bind(this);
+
 		this.edit = this.edit.bind(this);
 		this.delete = this.delete.bind(this);
+
+		this.viewBtn = this.viewBtn.bind(this);
+		this.editBtn = this.editBtn.bind(this);
+		this.deleteBtn = this.deleteBtn.bind(this);
 	}
 
 	render() {
@@ -45,13 +61,13 @@ class Cake extends React.Component<Props> {
 				</div>
 
 				<footer className="card-footer">
-					<a className="card-footer-item" onClick={this.view}>
+					<a className="card-footer-item" onClick={this.viewBtn}>
 						View
 					</a>
-					<a className="card-footer-item" onClick={this.edit}>
+					<a className="card-footer-item" onClick={this.editBtn}>
 						Edit
 					</a>
-					<a className="card-footer-item" onClick={this.delete}>
+					<a className="card-footer-item" onClick={this.deleteBtn}>
 						Delete
 					</a>
 				</footer>
@@ -60,43 +76,119 @@ class Cake extends React.Component<Props> {
 		);
 	}
 
-	view() {
-		// TODO
-		this.setState({
-			modal: {
-				visible: true,
-				header: this.props.name,
-				footer: '',
-				content: this.props.comment,
-				close: () => this.setState({ modal: { visible: false } }),
-			},
-		});
-	}
-
 	edit() {
 		// TODO
-		this.setState({
-			modal: {
-				visible: true,
-				header: this.props.name,
-				footer: '',
-				content: this.props.comment,
-				close: () => this.setState({ modal: { visible: false } }),
-			},
-		});
+		console.log(`PUT /cakes/${this.props.id}`);
+		this.state.modal.close();
 	}
 
 	delete() {
 		// TODO
-		this.setState({
-			modal: {
-				visible: true,
-				header: this.props.name,
-				footer: '',
-				content: this.props.comment,
-				close: () => this.setState({ modal: { visible: false } }),
+		console.log(`DELETE /cakes/${this.props.id}`);
+		this.state.modal.close();
+	}
+
+	viewBtn() {
+		this.updateModal({
+			visible: true,
+			header: `View | ${this.props.name}`,
+			renderContent: () => {
+				return <div>{this.props.comment}</div>;
+			},
+			renderFooter: () => {
+				return (
+					<div className="buttons">
+						<div className="button" onClick={this.state.modal.close}>
+							Close
+						</div>
+					</div>
+				);
 			},
 		});
+	}
+
+	editBtn() {
+		// TODO
+		this.updateModal({
+			visible: true,
+			header: `Edit | ${this.props.name}`,
+			renderContent: () => {
+				return (
+					<div>
+						<div className="field">
+							<label className="label">Name</label>
+							<div className="control">
+								<input className="input" type="text" />
+							</div>
+						</div>
+						<div className="field">
+							<label className="label">Comment</label>
+							<div className="control">
+								<textarea className="textarea" />
+							</div>
+						</div>
+						<div className="field">
+							<label className="label">Name</label>
+							<div className="control">
+								<div className="select">
+									<select>
+										<option>1</option>
+										<option>2</option>
+										<option>3</option>
+										<option>4</option>
+										<option>5</option>
+									</select>
+								</div>
+							</div>
+						</div>
+					</div>
+				);
+			},
+			renderFooter: () => {
+				return (
+					<div className="buttons">
+						<div className="button is-primary" onClick={this.edit}>
+							Save
+						</div>
+						<div className="button" onClick={this.state.modal.close}>
+							Close
+						</div>
+					</div>
+				);
+			},
+		});
+	}
+
+	deleteBtn() {
+		this.updateModal({
+			visible: true,
+			header: `Delete | ${this.props.name}`,
+			renderContent: () => {
+				return <div>Are you sure you want to delete this cake?</div>;
+			},
+			renderFooter: () => {
+				return (
+					<div className="buttons">
+						<div className="button is-danger" onClick={this.delete}>
+							Confirm
+						</div>
+						<div className="button" onClick={this.state.modal.close}>
+							Close
+						</div>
+					</div>
+				);
+			},
+		});
+	}
+
+	updateModal(changes: Partial<ModalState>) {
+		let currentState: ModalState = this.state.modal;
+		Object.keys(changes).forEach(key => {
+			//@ts-ignore
+			currentState[key] = changes[key];
+		});
+
+		this.setState({ modal: currentState });
 	}
 }
 
