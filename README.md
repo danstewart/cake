@@ -7,9 +7,9 @@ Basic Cake CRUD demo site.
 ## Set up
 #### Install dependancies
 ```
-dnf install yarn
-yarn global add parcel
-yarn global add n
+dnf install npm
+npm install -g yarn
+yarn global add parcel n pm2 ts-node
 n latest
 ```
 
@@ -34,6 +34,7 @@ sudo -u postgres psql
 > CREATE DATABASE cake;
 > CREATE USER cake WITH ENCRYPTED PASSWORD 'password';
 > GRANT ALL PRIVILEGES ON DATABASE cake TO cake;
+> \c cakes
 
 CREATE TABLE cakes (
 	id SERIAL PRIMARY KEY NOT NULL,
@@ -49,12 +50,29 @@ CREATE TABLE cakes (
 
 ## Running
 ```
-cd frontend && yarn start
-cd api && yarn start
+cd frontend && yarn install && yarn start
+cd api && yarn install && yarn start
 ```
 
-## Building
+## Deploying
 ```
+# nginx
+sudo cp nginx/{api.,}cake.danstewart.xyz /etc/nginx/sites-available
+sudo ln -s /etc/nginx/sites-available/cake.danstewart.xyz /etc/nginx/sites-enabled/
+sudo ln -s /etc/nginx/sites-available/api.danstewart.xyz /etc/nginx/sites-enabled/
+
+# frontend
 cd frontend && yarn build
-cd api && yarn build
+sudo ln -s $(pwd)/dist/ /data/www/cake.danstewart.dev
+
+# api
+cd api && yarn build && pm2 start src/build/index.js
+pm2 list
+pm2 restart $id
+
+sudo service nginx restart
+
+
+# certbot
+sudo certbot --nginx
 ```
