@@ -10,7 +10,7 @@ class CakeForm extends React.Component<Partial<Props>> {
 
 	render() {
 		return (
-			<div>
+			<div key={this.props.id}>
 				<div className="field">
 					<label className="label">Name</label>
 					<div className="control">
