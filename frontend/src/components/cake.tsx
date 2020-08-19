@@ -109,7 +109,7 @@ class Cake extends React.Component<Props> {
 					visible: true,
 					header: `View | ${this.props.name}`,
 					renderContent: () => {
-						return <div>{json.comment}</div>;
+						return <div className="keep-space">{json.comment}</div>;
 					},
 					renderFooter: () => {
 						const closeModal = () => this.props.updateModal({ visible: false });
