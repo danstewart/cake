@@ -46,7 +46,7 @@ class Database {
 		const binds = Object.values(data);
 
 		let bindKeys = [];
-		for (let i = 0; i <= binds.length; i++) {
+		for (let i = 1; i <= binds.length; i++) {
 			bindKeys.push(`$${i}`);
 		}
 
