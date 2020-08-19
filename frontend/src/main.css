@@ -1,8 +1,19 @@
 .flex-row {
 	display: flex;
 	flex-wrap: wrap;
+	justify-content: space-around;
 }
 
 .flex-row>* {
 	margin: 15px;
+}
+
+.image {
+	height: 300px;
+	overflow: hidden;
+}
+
+.cake-card {
+	width: 400px;
+	height: 400px;
 }

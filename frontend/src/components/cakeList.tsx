@@ -1,35 +1,20 @@
 import * as React from 'react';
+import { ModalState } from './modal';
 import { Cake, ICake } from '/components/cake';
-import config from '/config';
 
-interface State {
+interface Props {
 	cakes: Array<ICake>;
+	reloadCakes(): void;
+	updateModal(change: Partial<ModalState>): void;
 }
 
-class CakeList extends React.Component {
-	state: State = {
-		cakes: [],
-	};
-
+class CakeList extends React.Component<Props> {
 	constructor(props: any) {
 		super(props);
-
-		this.fetchCakes = this.fetchCakes.bind(this);
-	}
-
-	componentDidMount() {
-		this.fetchCakes();
-	}
-
-	fetchCakes() {
-		fetch(`${config.api}/cakes`)
-			.then(res => res.json())
-			.then(json => this.setState({ cakes: json }))
-			.catch(console.error);
 	}
 
 	render() {
-		const renderedCakes = this.state.cakes.map(post => <Cake key={post.id} fetchCakes={this.fetchCakes} {...post} />);
+		const renderedCakes = this.props.cakes.map(post => <Cake key={post.id} updateModal={this.props.updateModal} reloadCakes={this.props.reloadCakes} {...post} />);
 		return <div className="flex-row">{renderedCakes}</div>;
 	}
 }

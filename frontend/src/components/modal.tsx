@@ -8,6 +8,14 @@ interface Props {
 	close(e: React.MouseEvent): void;
 }
 
+interface ModalState {
+	visible: boolean;
+	header: string;
+	renderContent(): JSX.Element;
+	renderFooter(): JSX.Element;
+	close(): void;
+}
+
 class Modal extends React.Component<Props> {
 	render() {
 		const classes = this.props.visible ? 'modal is-active' : 'modal';
@@ -30,4 +38,4 @@ class Modal extends React.Component<Props> {
 	close() {}
 }
 
-export { Modal };
+export { Modal, ModalState };

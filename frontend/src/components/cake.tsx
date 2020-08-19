@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { Modal } from '/components/modal';
+import { ModalState } from '/components/modal';
+import { CakeForm } from '/components/cakeForm';
 import config from '/config';
 
 interface ICake {
@@ -11,34 +12,13 @@ interface ICake {
 }
 
 interface Props extends ICake {
-	fetchCakes(): void;
-}
-
-interface ModalState {
-	visible: boolean;
-	header: string;
-	renderContent(): JSX.Element;
-	renderFooter(): JSX.Element;
-	close(): void;
-}
-
-interface State {
-	modal: ModalState;
+	reloadCakes(): void;
+	updateModal(change: Partial<ModalState>): void;
 }
 
 const defaultImage = 'https://bulma.io/images/placeholders/1280x960.png';
 
 class Cake extends React.Component<Props> {
-	state: State = {
-		modal: {
-			visible: false,
-			header: '',
-			renderContent: () => <div />,
-			renderFooter: () => <div />,
-			close: () => this.updateModal({ visible: false }),
-		},
-	};
-
 	constructor(props: Props) {
 		super(props);
 
@@ -52,7 +32,7 @@ class Cake extends React.Component<Props> {
 
 	render() {
 		return (
-			<div className="card" style={{ width: '400px', height: '400px' }}>
+			<div className="card cake-card">
 				<div className="card-header">
 					<div className="card-header-title">
 						<h3 className="title is-4">{this.props.name}</h3>
@@ -61,9 +41,9 @@ class Cake extends React.Component<Props> {
 						<h3 className="subtitle is-6">{this.props.yumFactor}</h3>
 					</div>
 				</div>
-				<div className="card-image">
+				<div>
 					<figure className="image is-4by4">
-						<img src={this.props.imageUrl || defaultImage}></img>
+						<img className="card-image" src={this.props.imageUrl || defaultImage}></img>
 					</figure>
 				</div>
 
@@ -78,7 +58,6 @@ class Cake extends React.Component<Props> {
 						Delete
 					</a>
 				</footer>
-				<Modal {...this.state.modal}></Modal>
 			</div>
 		);
 	}
@@ -108,15 +87,15 @@ class Cake extends React.Component<Props> {
 				'Content-Type': 'application/json',
 			},
 		}).then(() => {
-			this.props.fetchCakes();
-			this.state.modal.close();
+			this.props.reloadCakes();
+			this.props.updateModal({ visible: false });
 		});
 	}
 
 	delete() {
 		fetch(`${config.api}/cakes/${this.props.id}`, { method: 'DELETE' }).then(() => {
-			this.props.fetchCakes();
-			this.state.modal.close();
+			this.props.reloadCakes();
+			this.props.updateModal({ visible: false });
 		});
 	}
 
@@ -126,16 +105,17 @@ class Cake extends React.Component<Props> {
 		fetch(`${config.api}/cakes/${this.props.id}`)
 			.then(res => res.json())
 			.then(json => {
-				this.updateModal({
+				this.props.updateModal({
 					visible: true,
 					header: `View | ${this.props.name}`,
 					renderContent: () => {
 						return <div>{json.comment}</div>;
 					},
 					renderFooter: () => {
+						const closeModal = () => this.props.updateModal({ visible: false });
 						return (
 							<div className="buttons">
-								<div className="button" onClick={this.state.modal.close}>
+								<div className="button" onClick={closeModal}>
 									Close
 								</div>
 							</div>
@@ -146,56 +126,18 @@ class Cake extends React.Component<Props> {
 	}
 
 	editBtn() {
-		this.updateModal({
+		this.props.updateModal({
 			visible: true,
 			header: `Edit | ${this.props.name}`,
-			renderContent: () => {
-				return (
-					<div>
-						<div className="field">
-							<label className="label">Name</label>
-							<div className="control">
-								<input className="input" id="cakeName" type="text" defaultValue={this.props.name} />
-							</div>
-						</div>
-						<div className="field">
-							<label className="label">Image URL</label>
-							<div className="control">
-								<input className="input" id="cakeImgUrl" type="text" defaultValue={this.props.imageUrl} />
-							</div>
-						</div>
-						<div className="field">
-							<label className="label">Comment</label>
-							<div className="control">
-								<textarea id="cakeComment" className="textarea">
-									{this.props.comment}
-								</textarea>
-							</div>
-						</div>
-						<div className="field">
-							<label className="label">Yum Factor</label>
-							<div className="control">
-								<div className="select">
-									<select id="cakeYumFactor" defaultValue={this.props.yumFactor}>
-										<option>1</option>
-										<option>2</option>
-										<option>3</option>
-										<option>4</option>
-										<option>5</option>
-									</select>
-								</div>
-							</div>
-						</div>
-					</div>
-				);
-			},
+			renderContent: () => <CakeForm {...this.props} />,
 			renderFooter: () => {
+				const closeModal = () => this.props.updateModal({ visible: false });
 				return (
 					<div className="buttons">
 						<div className="button is-primary" onClick={this.edit}>
 							Save
 						</div>
-						<div className="button" onClick={this.state.modal.close}>
+						<div className="button" onClick={closeModal}>
 							Close
 						</div>
 					</div>
@@ -205,35 +147,26 @@ class Cake extends React.Component<Props> {
 	}
 
 	deleteBtn() {
-		this.updateModal({
+		this.props.updateModal({
 			visible: true,
 			header: `Delete | ${this.props.name}`,
 			renderContent: () => {
 				return <div>Are you sure you want to delete this cake?</div>;
 			},
 			renderFooter: () => {
+				const closeModal = () => this.props.updateModal({ visible: false });
 				return (
 					<div className="buttons">
 						<div className="button is-danger" onClick={this.delete}>
 							Confirm
 						</div>
-						<div className="button" onClick={this.state.modal.close}>
+						<div className="button" onClick={closeModal}>
 							Close
 						</div>
 					</div>
 				);
 			},
 		});
-	}
-
-	updateModal(changes: Partial<ModalState>) {
-		let currentState: ModalState = this.state.modal;
-		Object.keys(changes).forEach(key => {
-			//@ts-ignore
-			currentState[key] = changes[key];
-		});
-
-		this.setState({ modal: currentState });
 	}
 }
 

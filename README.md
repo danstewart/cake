@@ -39,7 +39,7 @@ CREATE TABLE cakes (
 	id SERIAL PRIMARY KEY NOT NULL,
 	name VARCHAR(100) NOT NULL,
 	comment TEXT DEFAULT '',
-	"imageUrl" VARCHAR(50) DEFAULT '',
+	"imageUrl" VARCHAR(300) DEFAULT '',
 	"yumFactor" SMALLINT NOT NULL,
 	created TIMESTAMP DEFAULT now()
 )
