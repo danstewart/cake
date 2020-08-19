@@ -23,7 +23,7 @@ interface Queryable extends Insertable {
 class Cake {
 	async all(): Promise<Array<Queryable>> {
 		let db = await new Database().connect();
-		let res = await db.query('SELECT * FROM cakes');
+		let res = await db.query('SELECT * FROM cakes ORDER BY id ASC');
 		return res.rows;
 	}
 
