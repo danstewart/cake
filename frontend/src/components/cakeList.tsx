@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Cake, ICake } from '/components/cake';
+import config from '/config';
 
 interface State {
 	cakes: Array<ICake>;
@@ -10,15 +11,25 @@ class CakeList extends React.Component {
 		cakes: [],
 	};
 
+	constructor(props: any) {
+		super(props);
+
+		this.fetchCakes = this.fetchCakes.bind(this);
+	}
+
 	componentDidMount() {
-		fetch('http://localhost:8000/cakes')
+		this.fetchCakes();
+	}
+
+	fetchCakes() {
+		fetch(`${config.api}/cakes`)
 			.then(res => res.json())
 			.then(json => this.setState({ cakes: json }))
 			.catch(console.error);
 	}
 
 	render() {
-		const renderedCakes = this.state.cakes.map(post => <Cake key={post.id} {...post} />);
+		const renderedCakes = this.state.cakes.map(post => <Cake key={post.id} fetchCakes={this.fetchCakes} {...post} />);
 		return <div className="flex-row">{renderedCakes}</div>;
 	}
 }

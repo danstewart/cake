@@ -1,12 +1,17 @@
 import * as React from 'react';
-import { Modal } from './modal';
+import { Modal } from '/components/modal';
+import config from '/config';
 
-interface Props {
+interface ICake {
 	id: number;
 	name: string;
 	comment: string;
 	imageUrl: string;
 	yumFactor: number;
+}
+
+interface Props extends ICake {
+	fetchCakes(): void;
 }
 
 interface ModalState {
@@ -20,6 +25,8 @@ interface ModalState {
 interface State {
 	modal: ModalState;
 }
+
+const defaultImage = 'https://bulma.io/images/placeholders/1280x960.png';
 
 class Cake extends React.Component<Props> {
 	state: State = {
@@ -56,7 +63,7 @@ class Cake extends React.Component<Props> {
 				</div>
 				<div className="card-image">
 					<figure className="image is-4by4">
-						<img src="https://bulma.io/images/placeholders/1280x960.png"></img>
+						<img src={this.props.imageUrl || defaultImage}></img>
 					</figure>
 				</div>
 
@@ -77,38 +84,68 @@ class Cake extends React.Component<Props> {
 	}
 
 	edit() {
-		// TODO
-		console.log(`PUT /cakes/${this.props.id}`);
-		this.state.modal.close();
-	}
+		const fields = {
+			cakeName: 'name',
+			cakeImgUrl: 'imageUrl',
+			cakeComment: 'comment',
+			cakeYumFactor: 'yumFactor',
+		};
 
-	delete() {
-		// TODO
-		console.log(`DELETE /cakes/${this.props.id}`);
-		this.state.modal.close();
-	}
+		let changes: Partial<ICake> = {};
+		Object.keys(fields).forEach(field => {
+			const el = document.querySelector(`#${field}`) as HTMLInputElement;
 
-	viewBtn() {
-		this.updateModal({
-			visible: true,
-			header: `View | ${this.props.name}`,
-			renderContent: () => {
-				return <div>{this.props.comment}</div>;
+			if (el?.value) {
+				//@ts-ignore
+				changes[fields[field]] = el.value;
+			}
+		});
+
+		fetch(`${config.api}/cakes/${this.props.id}`, {
+			method: 'PUT',
+			body: JSON.stringify(changes),
+			headers: {
+				'Content-Type': 'application/json',
 			},
-			renderFooter: () => {
-				return (
-					<div className="buttons">
-						<div className="button" onClick={this.state.modal.close}>
-							Close
-						</div>
-					</div>
-				);
-			},
+		}).then(() => {
+			this.props.fetchCakes();
+			this.state.modal.close();
 		});
 	}
 
+	delete() {
+		fetch(`${config.api}/cakes/${this.props.id}`, { method: 'DELETE' }).then(() => {
+			this.props.fetchCakes();
+			this.state.modal.close();
+		});
+	}
+
+	viewBtn() {
+		// This request isn't actually needed but felt weird
+		// not using it so...
+		fetch(`${config.api}/cakes/${this.props.id}`)
+			.then(res => res.json())
+			.then(json => {
+				this.updateModal({
+					visible: true,
+					header: `View | ${this.props.name}`,
+					renderContent: () => {
+						return <div>{json.comment}</div>;
+					},
+					renderFooter: () => {
+						return (
+							<div className="buttons">
+								<div className="button" onClick={this.state.modal.close}>
+									Close
+								</div>
+							</div>
+						);
+					},
+				});
+			});
+	}
+
 	editBtn() {
-		// TODO
 		this.updateModal({
 			visible: true,
 			header: `Edit | ${this.props.name}`,
@@ -118,20 +155,28 @@ class Cake extends React.Component<Props> {
 						<div className="field">
 							<label className="label">Name</label>
 							<div className="control">
-								<input className="input" type="text" />
+								<input className="input" id="cakeName" type="text" defaultValue={this.props.name} />
+							</div>
+						</div>
+						<div className="field">
+							<label className="label">Image URL</label>
+							<div className="control">
+								<input className="input" id="cakeImgUrl" type="text" defaultValue={this.props.imageUrl} />
 							</div>
 						</div>
 						<div className="field">
 							<label className="label">Comment</label>
 							<div className="control">
-								<textarea className="textarea" />
+								<textarea id="cakeComment" className="textarea">
+									{this.props.comment}
+								</textarea>
 							</div>
 						</div>
 						<div className="field">
-							<label className="label">Name</label>
+							<label className="label">Yum Factor</label>
 							<div className="control">
 								<div className="select">
-									<select>
+									<select id="cakeYumFactor" defaultValue={this.props.yumFactor}>
 										<option>1</option>
 										<option>2</option>
 										<option>3</option>
@@ -192,4 +237,4 @@ class Cake extends React.Component<Props> {
 	}
 }
 
-export { Cake, Props as ICake };
+export { Cake, ICake };
