@@ -35,14 +35,14 @@ class Database {
 
 		let sql = Object.keys(clause).map(k => {
 			binds.push(clause[k]);
-			return `${k} = $${binds.length}`;
+			return `"${k}" = $${binds.length}`;
 		});
 
 		return [sql.join(', '), binds];
 	}
 
 	buildInsert(data: Object): [string, Array<any>] {
-		const fields = Object.keys(data).join(', ');
+		const fields = Object.keys(data).map(f => `"${f}"`).join(', ');
 		const binds = Object.values(data);
 
 		let bindKeys = [];
