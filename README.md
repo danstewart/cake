@@ -59,7 +59,7 @@ cd api && yarn install && yarn start
 # nginx
 sudo cp nginx/{api.,}cake.danstewart.xyz /etc/nginx/sites-available
 sudo ln -s /etc/nginx/sites-available/cake.danstewart.xyz /etc/nginx/sites-enabled/
-sudo ln -s /etc/nginx/sites-available/api.danstewart.xyz /etc/nginx/sites-enabled/
+sudo ln -s /etc/nginx/sites-available/api.cake.danstewart.xyz /etc/nginx/sites-enabled/
 
 # frontend
 cd frontend && yarn build
