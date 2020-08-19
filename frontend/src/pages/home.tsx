@@ -39,7 +39,7 @@ class Home extends React.Component {
 		return (
 			<div>
 				<br />
-				<div className="level">
+				<div className="head level">
 					<h1 className="title">Cake</h1>
 					<button className="button is-primary" onClick={this.addCakeBtn}>
 						Add
